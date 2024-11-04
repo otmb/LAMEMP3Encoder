@@ -69,9 +69,6 @@ ssize_t encode(int rate, int channels, int bitrate, vbrMethod_e vbrMethod, int n
     int chunkEnd = std::min(chunkStart + MAX_ENCODE_SAMLES, nsamples);
     int chunkLength = chunkEnd - chunkStart;
     int out_bytes = 0;
-    
-    isL.seekg (0, isL.cur);
-    int length = isL.tellg();
 
     float* pcm_l = new float [chunkLength];
     isL.read ((char*)pcm_l, chunkLength * sizeof(float));
