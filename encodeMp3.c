@@ -108,7 +108,7 @@ ssize_t encode(int rate, int channels, int bitrate, vbrMethod_e vbrMethod, int n
           elm.setAttribute('class','progress-bar progress-bar-striped progress-bar-animated');
           elm.innerText = Number(pcg)+'%';
       }
-    }, float(chunkEnd * sizeof(float)) / float(nsamples * 4));
+    }, float(chunkEnd) / float(nsamples));
     emscripten_sleep(1);
   }
   if (isL) {
