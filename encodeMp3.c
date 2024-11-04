@@ -16,9 +16,9 @@ typedef struct {
 
 typedef enum
 {
-	VBR_METHOD_NONE     =  0,
-	VBR_METHOD_DEFAULT  =  1,
-	VBR_METHOD_ABR      =  2
+  VBR_METHOD_NONE     =  0,
+  VBR_METHOD_DEFAULT  =  1,
+  VBR_METHOD_ABR      =  2
 } vbrMethod_e;
 
 int encoder_destroy(encoder_t *enc) {
