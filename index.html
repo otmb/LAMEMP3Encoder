@@ -1,0 +1,125 @@
+<html lang="ja">
+  <head>
+    <meta charset="utf-8">
+    <title>Webassembly MP3 Encoder(192kbps)</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <script src="assets/bootstrap.bundle.min.js"></script>
+    <link rel="stylesheet" href="assets/bootstrap.min.css">
+    <link rel="stylesheet" href="assets/common.css">
+    <script>
+        let Instance;
+        var Module = {
+            onRuntimeInitialized: async function () {
+                Instance = {
+                    encode: Module.cwrap('encode', "number", ["number","number","number","number","number"], {async: true})
+                }
+                main().catch(err => {
+                    console.error(err);
+                    process.exit(1);
+                });
+            },
+            print: function(text) { console.log(text); },
+            printErr: function(text) { console.log(text); }
+        };
+    </script>
+    <script src="wasm/encodeMp3.js"></script>
+    <script src="mp3.js"></script>
+</head>
+<body>
+<script>
+let audioCtx;
+let message;
+async function main() {
+    message = document.getElementById("message");
+    if (!audioCtx) {
+        audioCtx = new AudioContext();
+        // await loadAudio();
+    }
+}
+
+const reader = new FileReader();
+reader.addEventListener("progress", readerEvent);
+function readerEvent(event) {
+    message.innerText = "fileReading: " +  event.loaded;
+}
+
+async function handleFiles(files) {
+    reader.onload = async function(e) {
+        message.innerText = "decodeAudioData Start";
+        audioCtx.decodeAudioData(await e.target.result, transcode);
+    }
+    reader.readAsArrayBuffer(files[0])
+}
+
+// Debug
+async function loadAudio(files){
+    try {
+        // const name = "test_long3.mp4";
+        const name = "test.wav";
+        const response = await fetch(name);
+        message.innerText = "decodeAudioData";
+        audioCtx.decodeAudioData(await response.arrayBuffer(), transcode);
+    } catch (err) {
+        console.error(`Unable to fetch the audio file. Error: ${err.message}`);
+    }
+}
+
+async function transcode(audioBuffer){
+    const bitrate = 192;
+    const vbr = 0;
+
+    buildMp3(audioBuffer, bitrate, vbr).then(mp3bin =>{
+        if (!mp3bin){ return }
+        let audioBlob = URL.createObjectURL(new Blob([mp3bin], { type: 'audio/mpeg' }));
+        const downloadLink = document.getElementById('download');
+
+        downloadLink.href = audioBlob;
+        downloadLink.download = 'output.mp3';
+        downloadLink.style.display = 'inline';
+
+        const audio = document.getElementById('output-audio');
+        audio.src = audioBlob;
+        audio.style.display = 'inline';
+        document.getElementsByClassName('progress-bar').item(0).setAttribute('class','progress-bar');
+
+    });
+}
+</script>
+
+<div class="container mt-5">
+    <h1>Webassembly MP3 Encoder(192kbps)</h1>
+    <div class="card">
+        <div class="card-body">
+            <div id="drop-area" class="border rounded d-flex justify-content-center align-items-center"
+                style="height: 200px; cursor: pointer;">
+                <div class="text-center">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" fill="currentColor" class="bi bi-cloud-arrow-up-fill text-primary" viewBox="0 0 16 16">
+                        <path d="M8 2a5.53 5.53 0 0 0-3.594 1.342c-.766.66-1.321 1.52-1.464 2.383C1.266 6.095 0 7.555 0 9.318 0 11.366 1.708 13 3.781 13h8.906C14.502 13 16 11.57 16 9.773c0-1.636-1.242-2.969-2.834-3.194C12.923 3.999 10.69 2 8 2m2.354 5.146a.5.5 0 0 1-.708.708L8.5 6.707V10.5a.5.5 0 0 1-1 0V6.707L6.354 7.854a.5.5 0 1 1-.708-.708l2-2a.5.5 0 0 1 .708 0z"/>
+                    </svg>
+                    <p class="mt-3">Drag and drop your video file here or Click to select the file.</p>
+                </div>
+            </div>
+            <input type="file" id="fileElem" accept="video/*" class="d-none">
+        </div>
+    </div>
+    <div class="mt-5">
+        <p id="message"></p>
+        <div class="progress" role="progressbar" aria-label="Animated striped example" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100">
+        <div class="progress-bar progress-bar-striped progress-bar-animated" style="width: 0%"></div>
+        </div>
+    </div>
+    <div id="progress"></div>
+    <div class="mt-5 d-flex flex-row align-items-center justify-content-center">
+        <div class="p-2">
+        <audio id="output-audio" controls style="display: none;"></audio>
+        </div>
+        <div class="p-2">
+        <a id="download" class="btn btn-primary btn-lg" role="button" style="display: none;">ダウンロード</a>
+        </div>
+    </div>
+    <div id="content"></div>
+</div>
+<script src="assets/dropui.js" defer></script>
+
+</body>
+</html>
