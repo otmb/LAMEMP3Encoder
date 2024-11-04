@@ -8,7 +8,7 @@ em++ ${LAME_SO} ./encodeMp3.c \
   -s WASM=1 \
   -O0 \
   -I ${LAME_DIST}/include \
-	-s ASSERTIONS=1 \
+  -s ASSERTIONS=1 \
   -s ALLOW_MEMORY_GROWTH=1 \
   -s EXPORTED_RUNTIME_METHODS='["FS", "cwrap"]' \
   -s FORCE_FILESYSTEM=1 \
