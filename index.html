@@ -13,7 +13,7 @@
                 Instance = {
                     encode: Module.cwrap('encode', "number", ["number","number","number","number","number"], {async: true})
                 }
-                main().catch(err => {
+                await main().catch(err => {
                     console.error(err);
                     process.exit(1);
                 });
@@ -51,7 +51,7 @@ async function handleFiles(files) {
 }
 
 // Debug
-async function loadAudio(files){
+async function loadAudio(){
     try {
         // const name = "test_long3.mp4";
         const name = "test.wav";
