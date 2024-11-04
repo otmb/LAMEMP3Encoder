@@ -6,7 +6,7 @@ LAME_SO=${LAME_DIST}/lib/libmp3lame.so
 
 em++ ${LAME_SO} ./encodeMp3.c \
   -s WASM=1 \
-  -O0 \
+  -O3 \
   -I ${LAME_DIST}/include \
   -s ASSERTIONS=1 \
   -s ALLOW_MEMORY_GROWTH=1 \

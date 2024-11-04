@@ -10,10 +10,6 @@
 #define MAX_ENCODE_SAMLES       65536 * 8
 #define BUFFER_SIZE             (MAX_ENCODE_SAMLES * 1.25 + 7200)
 
-typedef struct {
-  lame_global_flags *lame;
-} encoder_t;
-
 typedef enum
 {
   VBR_METHOD_NONE     =  0,
@@ -21,44 +17,36 @@ typedef enum
   VBR_METHOD_ABR      =  2
 } vbrMethod_e;
 
-int encoder_destroy(encoder_t *enc) {
-  if (!enc) return -1;
-  if (enc->lame) free(enc->lame);
-  free(enc);
-  return 0;
-}
-
 extern "C" EMSCRIPTEN_KEEPALIVE
 ssize_t encode(int rate, int channels, int bitrate, vbrMethod_e vbrMethod, int nsamples) {
   
-  encoder_t *enc;
-  enc->lame = lame_init();
-  if (!enc->lame) {
-    encoder_destroy(enc);
+  lame_global_flags* pgf = lame_init();
+  if (!pgf) {
+    free(pgf);
     return -1;
   }
-  lame_set_in_samplerate(enc->lame, rate);
-  lame_set_num_channels(enc->lame, channels);
+  lame_set_in_samplerate(pgf, rate);
+  lame_set_num_channels(pgf, channels);
 
   switch (vbrMethod) {
     case VBR_METHOD_NONE:
-        lame_set_VBR(enc->lame, vbr_off);
+        lame_set_VBR(pgf, vbr_off);
         break;
     case VBR_METHOD_ABR:
-        lame_set_VBR(enc->lame, vbr_abr);
+        lame_set_VBR(pgf, vbr_abr);
         break;
     case VBR_METHOD_DEFAULT:
     default:
-        lame_set_VBR(enc->lame, vbr_default); 
+        lame_set_VBR(pgf, vbr_default); 
         break;
   };
 
-  lame_set_brate(enc->lame, bitrate);
+  lame_set_brate(pgf, bitrate);
 
   ssize_t ret;
-  ret = lame_init_params(enc->lame);
+  ret = lame_init_params(pgf);
   if (ret == -1) {
-    encoder_destroy(enc);
+    free(pgf);
     return -2;
   }
   
@@ -89,8 +77,8 @@ ssize_t encode(int rate, int channels, int bitrate, vbrMethod_e vbrMethod, int n
     if (isR)
       isR.read ((char*)pcm_r, chunkLength * sizeof(float));
     
-    out_bytes = lame_encode_buffer_ieee_float(enc->lame, pcm_l, pcm_r, 
-                                              chunkLength, 
+    out_bytes = lame_encode_buffer_ieee_float(pgf, pcm_l, pcm_r,
+                                              chunkLength,
                                               mp3buf + m_outOffset, BUFFER_SIZE);
     delete[] pcm_l;
     delete[] pcm_r;
