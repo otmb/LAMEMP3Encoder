@@ -59,7 +59,13 @@ ssize_t encode(int rate, int channels, int bitrate, vbrMethod_e vbrMethod, int n
   std::ifstream isL ("audioBufferL", std::ifstream::binary);
   std::ifstream isR ("audioBufferR", std::ifstream::binary);
   while (chunkStart < nsamples) {
-    if (!isL) return -3;
+    if (!isL) {
+      free(pgf);
+      free(mp3buf);
+      if (isL) isL.close();
+      if (isR) isR.close();
+      return -3;
+    }
     int chunkEnd = std::min(chunkStart + MAX_ENCODE_SAMLES, nsamples);
     int chunkLength = chunkEnd - chunkStart;
     int out_bytes = 0;
@@ -82,8 +88,13 @@ ssize_t encode(int rate, int channels, int bitrate, vbrMethod_e vbrMethod, int n
                                               mp3buf + m_outOffset, BUFFER_SIZE);
     delete[] pcm_l;
     delete[] pcm_r;
-    if (out_bytes < 0)
+    if (out_bytes < 0){
+      free(pgf);
+      free(mp3buf);
+      if (isL) isL.close();
+      if (isR) isR.close();
       return -4;
+    }
     chunkStart = chunkEnd;
     m_outOffset += out_bytes;
 
@@ -115,7 +126,8 @@ ssize_t encode(int rate, int channels, int bitrate, vbrMethod_e vbrMethod, int n
   fwrite(mp3buf, sizeof mp3buf[0], m_outOffset, file);
   fclose(file);
 
-  free( mp3buf );
+  free(pgf);
+  free(mp3buf);
   printf("Complete\n");
 
   return 1;
