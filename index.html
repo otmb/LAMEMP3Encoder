@@ -45,8 +45,7 @@ function readerEvent(event) {
 
 async function handleFiles(files) {
     reader.onload = async function(e) {
-        message.innerText = "decodeAudioData Start";
-        audioCtx.decodeAudioData(await e.target.result, transcode);
+        decodeAudioData(e.target.result);
     }
     reader.readAsArrayBuffer(files[0])
 }
@@ -57,11 +56,24 @@ async function loadAudio(files){
         // const name = "test_long3.mp4";
         const name = "test.wav";
         const response = await fetch(name);
-        message.innerText = "decodeAudioData";
-        audioCtx.decodeAudioData(await response.arrayBuffer(), transcode);
+        decodeAudioData(await response.arrayBuffer());
     } catch (err) {
-        console.error(`Unable to fetch the audio file. Error: ${err.message}`);
+        decodeError(err);
     }
+}
+
+function decodeAudioData(arrayBuffer){
+    try {
+        message.innerText = "DecodeAudioData Start";
+        audioCtx.decodeAudioData(arrayBuffer, transcode, decodeError);
+    } catch (err) {
+        decodeError(err);
+    }
+}
+
+function decodeError(error){
+    message.innerText = 'DecodeAudioData Error';
+    console.error(`Unable to fetch the audio file. Error: ${error.message}`);
 }
 
 async function transcode(audioBuffer){
