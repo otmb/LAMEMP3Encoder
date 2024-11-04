@@ -5,6 +5,8 @@ To adjust the length of the audio file, we considered the parameters when encodi
 We have confirmed that video files of up to 2 hours can be converted to MP3.
 However, I don't think it works well with very large files.
 
+TestPage: https://otmb.github.io/LAMEMP3Encoder/
+
 ## Development
 
 ### Environment
