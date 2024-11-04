@@ -64,3 +64,11 @@ html, body {
 #clickHere:hover {
     background-color: #4499DD;
 }
+
+footer{
+    width: 100%;
+    text-align: center;
+    padding: 10px 0;
+    position: absolute;
+    bottom: 0;
+}
