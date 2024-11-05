@@ -29,6 +29,14 @@
 <script>
 let audioCtx;
 let message;
+
+const message_color = Object.freeze({
+    error: 'align-middle alert alert-danger',
+    warning: 'align-middle alert alert-warning',
+    success: 'align-middle alert alert-warning',
+    default: 'align-middle',
+});
+
 async function main() {
     message = document.getElementById("message");
     if (!audioCtx) {
@@ -64,7 +72,11 @@ async function loadAudio(){
 
 function decodeAudioData(arrayBuffer){
     try {
-        message.innerText = "DecodeAudioData Start";
+        let text = "DecodeAudioData Start ";
+        text += '<span class="spinner-border spinner-border-sm text-success" role="status">';
+        text += '<span class="visually-hidden"></span>';
+        text += '</span>';
+        putMessage(text, message_color.default);
         audioCtx.decodeAudioData(arrayBuffer, transcode, decodeError);
     } catch (err) {
         decodeError(err);
@@ -72,7 +84,7 @@ function decodeAudioData(arrayBuffer){
 }
 
 function decodeError(error){
-    message.innerText = 'DecodeAudioData Error';
+    putMessage('DecodeAudioData processing failed. This file is not available.', message_color.error);
     console.error(`Unable to fetch the audio file. Error: ${error.message}`);
 }
 
@@ -95,6 +107,11 @@ async function transcode(audioBuffer){
         document.getElementsByClassName('progress-bar').item(0).setAttribute('class','progress-bar');
 
     });
+}
+
+function putMessage(text, color=message_color.default){
+    message.setAttribute('class', color);
+    document.getElementById("message").innerHTML = text;
 }
 </script>
 
