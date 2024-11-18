@@ -43,6 +43,6 @@ dropArea.addEventListener("click", () => {
 });
 
 let fileElem = document.getElementById("fileElem");
-    fileElem.addEventListener("change", async function (e) {
-        await handleFiles(this.files);
+fileElem.addEventListener("change", async function (e) {
+    await handleFiles(this.files);
 });
